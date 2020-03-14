@@ -1,0 +1,37 @@
+---
+- hosts: windows
+  
+
+  tasks:
+  - name: Install package manager
+    win_shell: Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
+  - name: Install Dependency packages
+    win_chocolatey:
+        name: "{{ item }}"
+        state: present
+        pinned: true
+    with_items:
+      - "putty"
+      - "notepadplusplus"
+      - "git"
+      - "jre8"
+      - "nginx"
+      - "googlechrome"
+      - "awscli"
+      - "python"
+    tags: dependency
+
+  - name: set JAVA_HOME
+    win_path:
+       state: present
+       elements: "C:\\Program Files\\Java\\jre1.8.0_241\\bin\\"
+       scope: machine
+    tags: java_home
+
+  - name: stop nginx service
+    win_service:
+        name: nginx
+        state: started
+    tags: nginx-service-start
+
