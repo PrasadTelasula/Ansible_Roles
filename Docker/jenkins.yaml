@@ -1,0 +1,67 @@
+---
+- hosts: all
+  become: true
+  gather_facts: false
+
+  vars:
+    docker_file_path: "/home/vagrant/"
+  tasks:
+  - name: Create Jenkins Dockerfile
+    copy:
+      owner: vagrant
+      group: vagrant
+      mode: '0644'
+      dest: "{{ docker_file_path }}/Dockerfile"
+      content: |
+
+           FROM jenkins/jenkins
+           MAINTAINER prasad.telasula@yahoo.com
+           ADD https://releases.hashicorp.com/terraform/0.12.21/terraform_0.12.21_linux_amd64.zip /opt/
+           WORKDIR /opt
+           USER root
+           RUN apt-get update -y \
+               && apt-get install awscli -y \
+               && unzip /opt/terraform_0.12.21_linux_amd64.zip \
+               && mv /opt/terraform /usr/bin/
+           USER jenkins
+
+
+  - name: Build docker image
+    docker_image:
+      build:
+         path: "{{ docker_file_path }}"
+      name: my_jenkins
+      tag: v1
+      state: present
+      source: build
+      
+
+  - name: List Docker images
+    shell: docker images
+    register: images_result
+
+  - debug: var=images_result.stdout_lines
+    
+
+  - name: Run Jenkins Docker container
+    docker_container:
+       name: my_jenkins
+       image: my_jenkins:v1
+       state: started
+       exposed_ports: 
+        - 8080:8080
+        - 50000:50000
+       volumes:
+        - jenkins_data:/var/jenkins_home:z
+       networks:
+        - name: formac
+
+
+  - name: Get info on docker host
+    shell: docker system df
+    register: result
+    tags: docker-host-info
+
+  - debug: var=result.stdout_lines
+    tags: docker-host-info
+

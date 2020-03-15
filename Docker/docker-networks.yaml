@@ -1,0 +1,4 @@
+---
+- name: Create forma network
+  docker_network:
+    name: formac

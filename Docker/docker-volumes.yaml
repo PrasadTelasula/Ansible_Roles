@@ -1,0 +1,4 @@
+---
+- name: Create Jenkins docker volume
+  docker_volume:
+      name: jenkins_data

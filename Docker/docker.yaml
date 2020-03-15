@@ -1,0 +1,49 @@
+---
+- hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+  - name: Install Dependencies
+    yum:
+      name: ["wget", "epel-release", "python-setuptools", "python-devel"]
+      state: latest
+
+  - name: Install pip
+    easy_install:
+        name: pip
+        state: latest
+
+  - name: Install docker
+    yum: 
+      name: docker
+      state: latest
+
+  - name: Enable and Start the Service
+    service:
+       name: docker
+       enabled: true
+       state: started
+
+  - name: Add Vagrant user to the docker group
+    user:
+      name: vagrant
+      groups: docker
+    ignore_errors: true
+  
+  - name: Install docker-py 
+    pip:
+       name: docker-py
+
+  - include: docker-volumes.yaml
+ 
+  - include: docker-networks.yaml
+
+  - name: Get info on docker host
+    shell: docker system df
+    register: result
+    tags: docker-host-info
+
+  - debug: var=result.stdout_lines
+    tags: docker-host-info
+
