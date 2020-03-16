@@ -12,7 +12,7 @@
 
 
   tasks:
-  - include: ./keys.yml
+  - include_vars: ./keys.yaml
   - name: Launch EC2 Ubuntu
     ec2:
        region: "{{ region }}"
