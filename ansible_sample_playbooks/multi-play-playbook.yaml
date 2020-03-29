@@ -1,0 +1,27 @@
+---
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+    package: "httpd"
+    
+  tasks:
+  - name: Install Apache.
+    yum:
+       name: "{{ package }}"
+       state: latest
+
+
+ - hosts: all
+   become: true
+   gather_facts: true
+
+  vars:
+    package: "nginx"
+    
+  tasks:
+  - name: Install Nginx.
+    yum:
+       name: "{{ package }}"
+       state: latest
