@@ -1,0 +1,13 @@
+---
+- hosts: windows
+  gather_facts: yes
+  tasks:
+  - name: Download WinSCP
+    win_get_url: 
+        url: "https://cdn.winscp.net/files/WinSCP-5.19.2-Setup.exe?secure=8GsAums6INOBaes4PH-pzw==,1629044118"
+        dest: "C:\\Users\\{{ ansible_user }}\\Downloads\\"
+        
+  - name: Install WinSCP
+    win_shell: .\WinSCP-5.19.2-Setup.exe /VERYSILENT /NORESTART /ALLUSERS
+    args:
+       chdir: "C:\\Users\\{{ ansible_user }}\\Downloads\\"
